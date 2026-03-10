@@ -39,11 +39,14 @@ export const SwipeCard = ({ image, onSwipe, zIndex }: Props) => {
         boxShadow: "0 8px 32px rgba(0,0,0,0.18), 0 1.5px 6px rgba(0,0,0,0.08)",
       }}
     >
-      <img
-        src={image}
-        alt="Cat"
-        className="w-full h-full object-cover pointer-events-none select-none"
-      />
+<img
+  src={image}
+  alt="Cat"
+  className="w-full h-full object-cover pointer-events-none select-none"
+  onError={(e) => {
+    (e.target as HTMLImageElement).src = "https://cataas.com/cat?width=450";
+  }}
+/>
 
       <div
         className="absolute inset-x-0 bottom-0 h-28 pointer-events-none"

@@ -36,7 +36,14 @@ export const Summary = ({ likedCats, onRestart }: Props) => {
               index % 3 === 0 ? "row-span-2" : "row-span-1"
             }`}
           >
-            <img src={url} className="w-full h-full object-cover" alt="Liked cat" />
+<img
+  src={url}
+  className="w-full h-full object-cover"
+  alt="Liked cat"
+  onError={(e) => {
+    (e.target as HTMLImageElement).src = "https://cataas.com/cat?width=450";
+  }}
+/>
           </motion.div>
         ))}
       </div>
