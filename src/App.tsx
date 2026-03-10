@@ -84,49 +84,38 @@ export default function App() {
     </div>
   );
 
-  return (
-    <main className="flex flex-col items-center justify-center h-screen w-full bg-[#0d0d0d] overflow-hidden relative p-4">
+ return (
+    <main className="flex flex-col items-center h-screen w-full bg-[#0d0d0d] overflow-hidden relative p-4 pt-safe">
       
-      {/* Ambient glow background */}
+      {/* Ambient glow */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-rose-500/10 rounded-full blur-[120px]" />
         <div className="absolute bottom-[-10%] left-1/4 w-[300px] h-[300px] bg-orange-500/8 rounded-full blur-[100px]" />
       </div>
 
-      {/* Header */}
-      <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-6 pt-8 pb-4">
+      {/* Header — in flow, not absolute */}
+      <div className="relative z-10 w-full flex items-center justify-between px-2 pt-4 pb-3 shrink-0">
         <div>
-          <h1 className="text-lg font-black text-white tracking-[0.15em] uppercase">Paws & Prefs</h1>
-          <p className="text-[11px] text-zinc-500 mt-0.5">{likedCats.length} liked · {history.length} seen</p>
+          <h1 className="text-base font-black text-white tracking-[0.15em] uppercase">Paws & Prefs</h1>
+          <p className="text-[10px] text-zinc-500 mt-0.5">{likedCats.length} liked · {history.length} seen</p>
         </div>
-        {/* Progress dots */}
-        <div className="flex gap-1.5">
+        <div className="flex gap-1">
           {Array.from({ length: 12 }).map((_, i) => (
-            <div
-              key={i}
-              className={`h-1 rounded-full transition-all duration-300 ${
-                i < history.length
-                  ? "bg-rose-500 w-3"
-                  : "bg-zinc-700 w-1.5"
-              }`}
-            />
+            <div key={i} className={`h-1 rounded-full transition-all duration-300 ${
+              i < history.length ? "bg-rose-500 w-3" : "bg-zinc-700 w-1.5"
+            }`} />
           ))}
         </div>
       </div>
 
       {/* Card area */}
-      <div className={`relative w-full flex items-center justify-center ${
-        cats.length > 0 ? "max-w-[340px] h-[520px]" : "max-w-2xl"
+      <div className={`relative w-full flex items-center justify-center flex-1 ${
+        cats.length > 0 ? "max-w-[340px]" : "max-w-2xl"
       }`}>
         <AnimatePresence mode="popLayout">
           {cats.length > 0 ? (
             cats.map((url, index) => (
-              <SwipeCard
-                key={url}
-                image={url}
-                zIndex={index}
-                onSwipe={(dir) => handleSwipe(dir, url)}
-              />
+              <SwipeCard key={url} image={url} zIndex={index} onSwipe={(dir) => handleSwipe(dir, url)} />
             ))
           ) : likedCats.length > 0 ? (
             <Summary likedCats={likedCats} onRestart={handleRestart} />
@@ -137,11 +126,8 @@ export default function App() {
       </div>
 
       {/* Bottom controls */}
-      <div className="flex items-center gap-6 mt-6">
-        {/* Skip label */}
-        <span className="text-[11px] font-bold text-zinc-600 tracking-widest uppercase w-20 text-right">Skip</span>
-
-        {/* Undo button */}
+      <div className="relative z-10 flex items-center gap-6 py-3 shrink-0">
+        <span className="text-[11px] font-bold text-zinc-600 tracking-widest uppercase w-16 text-right">Skip</span>
         <AnimatePresence>
           {cats.length > 0 && history.length > 0 && (
             <motion.button
@@ -155,19 +141,12 @@ export default function App() {
             </motion.button>
           )}
         </AnimatePresence>
-
-        {/* Like label */}
-        <span className="text-[11px] font-bold text-zinc-600 tracking-widest uppercase w-20 text-left">Like</span>
+        <span className="text-[11px] font-bold text-zinc-600 tracking-widest uppercase w-16 text-left">Like</span>
       </div>
 
-      {/* Swipe hint — only on first card */}
       {cats.length === 12 && (
-        <motion.p
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1 }}
-          className="absolute bottom-6 text-[11px] text-zinc-600 tracking-widest"
-        >
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1 }}
+          className="relative z-10 pb-2 text-[11px] text-zinc-600 tracking-widest shrink-0">
           ← SWIPE TO DECIDE →
         </motion.p>
       )}

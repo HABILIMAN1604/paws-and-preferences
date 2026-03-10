@@ -17,9 +17,9 @@ export const Summary = ({ likedCats, onRestart }: Props) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="w-full max-w-2xl px-4 py-8 overflow-y-auto max-h-[85vh] no-scrollbar"
+      className="w-full max-w-2xl px-4 pt-2 pb-8 overflow-y-auto max-h-[85vh] no-scrollbar"
     >
-      <div className="text-center mb-8">
+      <div className="text-center mb-4">
         <h2 className="text-3xl font-black text-white tracking-tight">Your Purr-fect Matches</h2>
         <p className="text-zinc-500">You liked {likedCats.length} kitties today.</p>
       </div>
