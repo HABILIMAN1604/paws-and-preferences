@@ -16,21 +16,17 @@ export default function App() {
   useEffect(() => {
     const init = async () => {
       const urls = await fetchCats(12);
-      
-      const promises = urls.slice(-4).map((url) => {
-        return new Promise((resolve) => {
+      const promises = urls.slice(-4).map((url) =>
+        new Promise((resolve) => {
           const img = new Image();
           img.src = url;
           img.onload = resolve;
           img.onerror = resolve;
-        });
-      });
-
+        })
+      );
       await Promise.all(promises);
       setCats(urls);
       setLoading(false);
-
-      // Background preload remaining cards
       urls.slice(0, -4).forEach((url) => {
         const img = new Image();
         img.src = url;
@@ -41,7 +37,6 @@ export default function App() {
 
   const handleSwipe = (direction: "left" | "right", url: string) => {
     setHistory((prev) => [...prev, url]);
-
     if (direction === "right") {
       setLikedCats((prev) => [...prev, url]);
       if (window.navigator.vibrate) window.navigator.vibrate(20);
@@ -51,7 +46,6 @@ export default function App() {
 
   const handleUndo = () => {
     if (history.length === 0) return;
-
     const lastUrl = history[history.length - 1];
     setHistory((prev) => prev.slice(0, -1));
     setLikedCats((prev) => prev.filter((url) => url !== lastUrl));
@@ -63,10 +57,8 @@ export default function App() {
     setLikedCats([]);
     setHistory([]);
     setLoading(true);
-
     const init = async () => {
       const urls = await fetchCats(12);
-
       const promises = urls.slice(-4).map((url) =>
         new Promise((resolve) => {
           const img = new Image();
@@ -75,11 +67,9 @@ export default function App() {
           img.onerror = resolve;
         })
       );
-
       await Promise.all(promises);
       setCats(urls);
       setLoading(false);
-
       urls.slice(0, -4).forEach((url) => {
         const img = new Image();
         img.src = url;
@@ -89,19 +79,45 @@ export default function App() {
   };
 
   if (loading) return (
-    <div className="flex h-screen items-center justify-center bg-slate-50">
+    <div className="flex h-screen items-center justify-center bg-[#0d0d0d]">
       <LoadingSkeleton />
     </div>
   );
 
   return (
-    <main className="flex flex-col items-center justify-center h-screen w-full bg-slate-50 overflow-hidden relative p-4">
-      <h1 className="absolute top-8 text-xl font-black text-slate-300 tracking-[0.2em] uppercase">Paws & Prefs</h1>
-      <p className="absolute top-16 text-xs text-slate-300">{likedCats.length} liked · {history.length} seen</p>
+    <main className="flex flex-col items-center justify-center h-screen w-full bg-[#0d0d0d] overflow-hidden relative p-4">
+      
+      {/* Ambient glow background */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-rose-500/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] left-1/4 w-[300px] h-[300px] bg-orange-500/8 rounded-full blur-[100px]" />
+      </div>
 
+      {/* Header */}
+      <div className="absolute top-0 left-0 right-0 flex items-center justify-between px-6 pt-8 pb-4">
+        <div>
+          <h1 className="text-lg font-black text-white tracking-[0.15em] uppercase">Paws & Prefs</h1>
+          <p className="text-[11px] text-zinc-500 mt-0.5">{likedCats.length} liked · {history.length} seen</p>
+        </div>
+        {/* Progress dots */}
+        <div className="flex gap-1.5">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <div
+              key={i}
+              className={`h-1 rounded-full transition-all duration-300 ${
+                i < history.length
+                  ? "bg-rose-500 w-3"
+                  : "bg-zinc-700 w-1.5"
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Card area */}
       <div className={`relative w-full flex items-center justify-center ${
-  cats.length > 0 ? "max-w-[340px] h-[520px]" : "max-w-2xl"
-}`}>
+        cats.length > 0 ? "max-w-[340px] h-[520px]" : "max-w-2xl"
+      }`}>
         <AnimatePresence mode="popLayout">
           {cats.length > 0 ? (
             cats.map((url, index) => (
@@ -112,35 +128,48 @@ export default function App() {
                 onSwipe={(dir) => handleSwipe(dir, url)}
               />
             ))
+          ) : likedCats.length > 0 ? (
+            <Summary likedCats={likedCats} onRestart={handleRestart} />
           ) : (
-            likedCats.length > 0 ? (
-              <Summary likedCats={likedCats} onRestart={handleRestart} />
-            ) : (
-              <EmptyState key="empty" />
-            )
+            <EmptyState key="empty" />
           )}
         </AnimatePresence>
       </div>
 
-      <AnimatePresence>
-        {cats.length > 0 && history.length > 0 && (
-          <motion.button
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.5 }}
-            onClick={handleUndo}
-            className="mt-6 p-4 bg-white rounded-full shadow-md text-orange-500 hover:shadow-lg active:scale-95 transition-all"
-          >
-            <RotateCcw size={24} />
-          </motion.button>
-        )}
-      </AnimatePresence>
+      {/* Bottom controls */}
+      <div className="flex items-center gap-6 mt-6">
+        {/* Skip label */}
+        <span className="text-[11px] font-bold text-zinc-600 tracking-widest uppercase w-20 text-right">Skip</span>
 
-      {cats.length > 0 && (
-        <div className="mt-8 flex gap-12 text-slate-300 font-bold text-sm tracking-widest">
-          <span>SWIPE LEFT TO SKIP</span>
-          <span>RIGHT TO LIKE</span>
-        </div>
+        {/* Undo button */}
+        <AnimatePresence>
+          {cats.length > 0 && history.length > 0 && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.5 }}
+              onClick={handleUndo}
+              className="p-3 bg-zinc-800 border border-zinc-700 rounded-full text-zinc-400 hover:text-white hover:border-zinc-500 transition-all shadow-lg"
+            >
+              <RotateCcw size={18} />
+            </motion.button>
+          )}
+        </AnimatePresence>
+
+        {/* Like label */}
+        <span className="text-[11px] font-bold text-zinc-600 tracking-widest uppercase w-20 text-left">Like</span>
+      </div>
+
+      {/* Swipe hint — only on first card */}
+      {cats.length === 12 && (
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1 }}
+          className="absolute bottom-6 text-[11px] text-zinc-600 tracking-widest"
+        >
+          ← SWIPE TO DECIDE →
+        </motion.p>
       )}
     </main>
   );
