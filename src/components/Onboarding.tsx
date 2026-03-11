@@ -1,6 +1,6 @@
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useState } from "react";
-import { Heart, X, RotateCcw } from "lucide-react";
+import { Heart, X } from "lucide-react";
 
 interface Props {
   onDone: () => void;
