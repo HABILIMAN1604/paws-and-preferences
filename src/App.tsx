@@ -4,6 +4,7 @@ import { SwipeCard } from "./components/SwipeCard";
 import { LoadingSkeleton } from "./components/LoadingSkeleton";
 import { EmptyState } from "./components/EmptyState";
 import { Summary } from "./components/Summary";
+import { Onboarding } from "./components/Onboarding";
 import { RotateCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -12,28 +13,32 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [likedCats, setLikedCats] = useState<string[]>([]);
   const [history, setHistory] = useState<string[]>([]);
+  const [showOnboarding, setShowOnboarding] = useState(
+    () => !localStorage.getItem("paws-seen-tutorial")
+  );
 
   useEffect(() => {
-    const init = async () => {
-      const urls = await fetchCats(12);
-      const promises = urls.slice(-4).map((url) =>
-        new Promise((resolve) => {
-          const img = new Image();
-          img.src = url;
-          img.onload = resolve;
-          img.onerror = resolve;
-        })
-      );
-      await Promise.all(promises);
-      setCats(urls);
-      setLoading(false);
-      urls.slice(0, -4).forEach((url) => {
+    loadCats();
+  }, []);
+
+  const loadCats = async () => {
+    const urls = await fetchCats(12);
+    const promises = urls.slice(-4).map((url) =>
+      new Promise((resolve) => {
         const img = new Image();
         img.src = url;
-      });
-    };
-    init();
-  }, []);
+        img.onload = resolve;
+        img.onerror = resolve;
+      })
+    );
+    await Promise.all(promises);
+    setCats(urls);
+    setLoading(false);
+    urls.slice(0, -4).forEach((url) => {
+      const img = new Image();
+      img.src = url;
+    });
+  };
 
   const handleSwipe = (direction: "left" | "right", url: string) => {
     setHistory((prev) => [...prev, url]);
@@ -57,25 +62,12 @@ export default function App() {
     setLikedCats([]);
     setHistory([]);
     setLoading(true);
-    const init = async () => {
-      const urls = await fetchCats(12);
-      const promises = urls.slice(-4).map((url) =>
-        new Promise((resolve) => {
-          const img = new Image();
-          img.src = url;
-          img.onload = resolve;
-          img.onerror = resolve;
-        })
-      );
-      await Promise.all(promises);
-      setCats(urls);
-      setLoading(false);
-      urls.slice(0, -4).forEach((url) => {
-        const img = new Image();
-        img.src = url;
-      });
-    };
-    init();
+    loadCats();
+  };
+
+  const handleOnboardingDone = () => {
+    localStorage.setItem("paws-seen-tutorial", "1");
+    setShowOnboarding(false);
   };
 
   if (loading) return (
@@ -84,16 +76,21 @@ export default function App() {
     </div>
   );
 
- return (
+  return (
     <main className="flex flex-col items-center h-screen w-full bg-[#0d0d0d] overflow-hidden relative p-4 pt-safe">
-      
+
+      {/* Onboarding overlay */}
+      <AnimatePresence>
+        {showOnboarding && <Onboarding onDone={handleOnboardingDone} />}
+      </AnimatePresence>
+
       {/* Ambient glow */}
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-rose-500/10 rounded-full blur-[120px]" />
         <div className="absolute bottom-[-10%] left-1/4 w-[300px] h-[300px] bg-orange-500/8 rounded-full blur-[100px]" />
       </div>
 
-      {/* Header — in flow, not absolute */}
+      {/* Header */}
       <div className="relative z-10 w-full flex items-center justify-between px-2 pt-4 pb-3 shrink-0">
         <div>
           <h1 className="text-base font-black text-white tracking-[0.15em] uppercase">Paws & Prefs</h1>
