@@ -7,6 +7,11 @@ import { Summary } from "./components/Summary";
 import { Onboarding } from "./components/Onboarding";
 import { RotateCcw, X, Heart } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import ReactGA from "react-ga4";
+
+const MEASUREMENT_ID = "G-M3RFDFRDRS";
+ReactGA.initialize(MEASUREMENT_ID);
+
 
 export default function App() {
   const [cats, setCats] = useState<string[]>([]);
@@ -19,6 +24,7 @@ export default function App() {
   );
 
   useEffect(() => {
+    ReactGA.send({ hitType: "pageview", page: window.location.pathname, title: "Home Page" });
     loadCats();
   }, []);
 
