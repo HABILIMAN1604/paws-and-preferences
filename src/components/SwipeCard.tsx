@@ -38,11 +38,12 @@ export const SwipeCard = ({ image, onSwipe, zIndex }: Props) => {
       onDragEnd={handleDragEnd}
       exit={{ x: exitX, opacity: 0, transition: { duration: 0.35 } }}
       className="absolute w-full h-full rounded-3xl overflow-hidden touch-none cursor-grab active:cursor-grabbing"
-      style={{ x, rotate, zIndex, boxShadow: "0 8px 40px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.4)" }}
+      style={{ x, rotate, zIndex, willChange: "transform", boxShadow: "0 8px 40px rgba(0,0,0,0.6), 0 2px 8px rgba(0,0,0,0.4)" }}
     >
       <img
         src={image}
         alt="Cat"
+        decoding="async"
         className="w-full h-full object-cover pointer-events-none select-none"
         onError={(e) => { (e.target as HTMLImageElement).src = "https://cataas.com/cat?width=450"; }}
       />
